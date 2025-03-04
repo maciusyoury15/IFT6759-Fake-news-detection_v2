@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 import gdown
 
 import requests
@@ -62,8 +63,8 @@ def fetch_image_from_url(url):
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
     }
-
-    # Handle NaN or invalid URL values
+    
+    # Skip NaN or invalid URL values
     if pd.isna(url) or str(url).strip().lower() in ["nan", ""]:
         print(f"Skipping invalid URL: {url}")
         return None
@@ -72,12 +73,21 @@ def fetch_image_from_url(url):
         response = requests.get(url, headers=HEADERS, timeout=10)
 
         # Check HTTP response
-        if response.status_code == 200:
-            print(f"Successfully fetched image: {url}")
-            return Image.open(BytesIO(response.content))
-        else:
+        if response.status_code != 200:
             print(f"Failed to fetch image (Status {response.status_code}): {url}")
             return None
+
+        # Check first bytes of response
+        content_type = response.headers.get("Content-Type", "")
+        print(f"Fetched URL: {url}, Content-Type: {content_type}")
+
+        # Ensure it's an image
+        if "image" not in content_type:
+            print(f"URL is not an image: {url}")
+            return None
+
+        # Open and return the image
+        return Image.open(BytesIO(response.content))
 
     except requests.exceptions.RequestException as e:
         print(f"Error fetching image from {url}: {e}")
