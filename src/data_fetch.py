@@ -2,6 +2,10 @@ import os
 import pandas as pd
 import gdown
 
+import requests
+from io import BytesIO
+from PIL import Image
+
 def fetch_fakeddit_data(output_dir="data/raw"):
     """
     Fetches all Fakeddit datasets (train, validation, and test) and saves them in a folder.
@@ -41,6 +45,45 @@ def fetch_fakeddit_data(output_dir="data/raw"):
                 print(f"First few lines of the file:\n{first_lines}")
 
     return datasets
+
+
+
+def fetch_image_from_url(url):
+    """
+    Fetches an image from a URL and returns a PIL image object.
+
+    Parameters:
+    - url (str or NaN): The image URL.
+
+    Returns:
+    - PIL Image object if successful, otherwise None.
+    """
+    # Custom headers to mimic a real browser
+    HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    }
+
+    # Handle NaN or invalid URL values
+    if pd.isna(url) or str(url).strip().lower() in ["nan", ""]:
+        print(f"Skipping invalid URL: {url}")
+        return None
+
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=10)
+
+        # Check HTTP response
+        if response.status_code == 200:
+            print(f"Successfully fetched image: {url}")
+            return Image.open(BytesIO(response.content))
+        else:
+            print(f"Failed to fetch image (Status {response.status_code}): {url}")
+            return None
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching image from {url}: {e}")
+        return None
+
+
 
 # if __name__ == "__main__":
 #     datasets = fetch_fakeddit_data()
