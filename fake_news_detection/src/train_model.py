@@ -78,9 +78,13 @@ def train(config_path):
 
     logger.info(f"Training data: {train_tsv}, Validation data: {val_tsv}")
 
+    # Set up number of classes
+    num_classes = config["num_classes"]
+    logger.info(f"Training model using {num_classes}-way labels")
+
     # Load datasets
-    train_dataset = MultiModalDataset(train_tsv, image_folder)
-    val_dataset = MultiModalDataset(val_tsv, image_folder)
+    train_dataset = MultiModalDataset(train_tsv, image_folder, num_classes)
+    val_dataset = MultiModalDataset(val_tsv, image_folder, num_classes)
 
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False)
@@ -91,7 +95,7 @@ def train(config_path):
     # Initialize models
     vit_model = VisionTransformerModel(device=device)
     text_model = TextTransformerModel(device=device)
-    multi_modal_model = MultiModalClassifier().to(device)
+    multi_modal_model = MultiModalClassifier(num_classes=num_classes).to(device)
 
     logger.info("Models initialized successfully.")
 

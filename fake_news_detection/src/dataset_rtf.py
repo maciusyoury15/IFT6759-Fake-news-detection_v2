@@ -8,13 +8,14 @@ import os
 from transformers import AutoProcessor, AutoTokenizer
 
 class MultiModalDataset(Dataset):
-    def __init__(self, tsv_file, image_folder, vit_model_name="timm/tiny_vit_5m_224.dist_in22k", text_model_name="distilbert/distilbert-base-uncased", max_text_length=128):
+    def __init__(self, tsv_file, image_folder, num_classes=2, vit_model_name="timm/tiny_vit_5m_224.dist_in22k", text_model_name="distilbert/distilbert-base-uncased", max_text_length=128):
         """
         Dataset class to load images from a folder and texts from a TSV file.
         
         Args:
             tsv_file (str): Path to the TSV dataset.
             image_folder (str): Path to the folder containing images.
+            num_classes (int): 
             vit_model_name (str): Vision Transformer model name.
             text_model_name (str): Text Transformer model name.
             max_text_length (int): Maximum text length for tokenization.
@@ -32,6 +33,16 @@ class MultiModalDataset(Dataset):
         self.tokenizer = AutoTokenizer.from_pretrained(text_model_name)
         self.max_text_length = max_text_length
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+
+        if num_classes == 2:
+            self.label = "2_way_label"
+        elif num_classes == 3:
+            self.label = "3_way_label"
+        elif num_classes == 6:
+            self.label = "6_way_label"
+        else:
+            raise Exception("Invalid number of classes. Must be 2, 3, or 6")
+
 
     def preprocess_image(self, image_id):
         """

@@ -4,6 +4,7 @@ train_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\d
 val_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\sample\multimodal_train_1k.tsv
 image_folder: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\public_image_set
 
+num_classes: 2
 
 batch_size: 16
 num_epochs: 100
