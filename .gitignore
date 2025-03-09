@@ -96,7 +96,7 @@ outputs
 data/*/*
 
 # Logs
-logs/*
+logs/
 
 # Notebooks
 notebooks/*
