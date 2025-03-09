@@ -95,5 +95,8 @@ outputs
 # Data
 data/*/*
 
+# Logs
+logs/*
+
 # Notebooks
 notebooks/*
