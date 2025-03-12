@@ -14,7 +14,7 @@ from fake_news_detection.src.train_model import setup_logging, load_config, eval
 def evaluate_model_from_checkpoint(config_path):
     config = load_config(config_path)
     save_dir = config["save_dir"]
-    logger = setup_logging(save_dir)
+    logger = setup_logging(save_dir, "evaluation_from_checkpoint.log")
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Using device: {device}")

@@ -59,7 +59,7 @@ def train(config_path):
     save_dir = config["save_dir"]
     
     # Setup logging
-    logger = setup_logging(save_dir)
+    logger = setup_logging(save_dir, "training.log")
     logger.info("Configuration loaded successfully.")
     logger.info(f"Configuration: {config}")
     

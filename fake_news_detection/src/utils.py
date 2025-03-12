@@ -14,9 +14,9 @@ from typing import List
 from wordcloud import WordCloud
 
 
-def setup_logging(save_dir):
+def setup_logging(save_dir, log_name):
     """Setup logging to save logs in the same directory as the model."""
-    log_file = os.path.join(save_dir, "training.log")
+    log_file = os.path.join(save_dir, log_name)
     os.makedirs(save_dir, exist_ok=True)  # Ensure save directory exists
 
     logging.basicConfig(
