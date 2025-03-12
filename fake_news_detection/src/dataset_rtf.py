@@ -81,7 +81,7 @@ class MultiModalDataset(Dataset):
     def __getitem__(self, idx):
         image_id = self.data.iloc[idx]["id"]  # Use ID to find the image
         text = self.data.iloc[idx]["clean_title"]
-        label = torch.tensor(self.data.iloc[idx]["2_way_label"], dtype=torch.long)
+        label = torch.tensor(self.data.iloc[idx][self.label], dtype=torch.long)
 
         image_tensor = self.preprocess_image(image_id)
         text_inputs = self.preprocess_text(text)
