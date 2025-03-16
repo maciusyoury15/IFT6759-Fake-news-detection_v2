@@ -87,7 +87,10 @@ def train(config_path):
     # Initialize models
     vit_model = VisionTransformerModel(device=device)
     text_model = TextTransformerModel(device=device)
-    multi_modal_model = MultiModalClassifier(num_classes=num_classes).to(device)
+
+    fusion_method = config['fusion_method']
+    logger.info(f"Creating MultiModalClassifier with fusion method {fusion_method}")
+    multi_modal_model = MultiModalClassifier(num_classes=num_classes, fusion_method=fusion_method).to(device)
 
     logger.info("Models initialized successfully.")
 

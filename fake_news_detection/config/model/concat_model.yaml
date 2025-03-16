@@ -1,14 +1,16 @@
-name: concat_model_full_data_6_classes
+name: cross_attention_model_full_data_2_classes
 
 train_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\multimodal_only_samples\multimodal_train.tsv
 val_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\multimodal_only_samples\multimodal_validate.tsv
 image_folder: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\public_image_set
 
-num_classes: 6
+num_classes: 2
+
+fusion_method: cross_attention
 
 batch_size: 16
 num_epochs: 25
 learning_rate: 0.0001
 patience: 3  # Early stopping patience
 
-save_dir: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\fake_news_detection\logs\concat_model_full_data_6_classes
+save_dir: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection_v2\fake_news_detection\logs\cross_attention_model_full_data_2_classes
