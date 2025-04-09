@@ -1,9 +1,5 @@
 import torch
-from transformers import AutoModel, AutoProcessor
-from PIL import Image
-import requests
-
-
+from transformers import AutoModel
 
 
 class VisionTransformerModel:
@@ -13,6 +9,7 @@ class VisionTransformerModel:
         """
         self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = AutoModel.from_pretrained(model_name).to(self.device).eval()
+        self.embedding_size = 320
 
     def get_image_embedding(self, images):
         """

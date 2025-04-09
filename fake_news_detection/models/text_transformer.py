@@ -1,5 +1,3 @@
-
-
 import torch
 from transformers import AutoModel
 
@@ -7,6 +5,7 @@ class TextTransformerModel:
     def __init__(self, model_name="distilbert/distilbert-base-uncased", device=None):
         self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = AutoModel.from_pretrained(model_name).to(self.device).eval()
+        self.embedding_size = 768
 
     def get_text_embedding(self, text_inputs):
         """

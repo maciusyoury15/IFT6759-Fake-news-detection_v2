@@ -8,7 +8,14 @@ import os
 from transformers import AutoProcessor, AutoTokenizer
 
 class MultiModalDataset(Dataset):
-    def __init__(self, tsv_file, image_folder, num_classes=2, vit_model_name="timm/tiny_vit_5m_224.dist_in22k", text_model_name="distilbert/distilbert-base-uncased", max_text_length=128):
+    def __init__(
+            self, 
+            tsv_file, 
+            image_folder, 
+            num_classes=2, 
+            vit_model_name="timm/tiny_vit_5m_224.dist_in22k", 
+            text_model_name="distilbert/distilbert-base-uncased", 
+            max_text_length=128):
         """
         Dataset class to load images from a folder and texts from a TSV file.
         

@@ -1,4 +1,4 @@
-
+import argparse
 import os
 from tqdm import tqdm
 
@@ -13,13 +13,13 @@ from fake_news_detection.src.dataset_rtf import MultiModalDataset
 from fake_news_detection.models.multi_modal import MultiModalClassifier
 from fake_news_detection.models.ViT import VisionTransformerModel
 from fake_news_detection.models.text_transformer import TextTransformerModel
+from fake_news_detection.models.clip_model import CLIPImageEncoder, CLIPTextEncoder
 from fake_news_detection.src.utils import setup_logging, load_config, save_conf_matrix 
 
 
 def evaluate(model, vit_model, text_model, val_loader, criterion, device):
     model.eval()
-    val_loss = 0.0
-    batch_count = 0
+    val_loss, batch_count = 0.0, 0
 
     y_true, y_pred = [], []
 
@@ -74,9 +74,31 @@ def train(config_path):
     num_classes = config["num_classes"]
     logger.info(f"Training model using {num_classes}-way labels")
 
+    vit_model_name = config["vit_model_name"]
+    text_model_name = config["text_model_name"]
+ 
+    if text_model_name == "openai/clip-vit-base-patch32":
+        max_text_length = 77
+    else:
+        max_text_length = 128
+
     # Load datasets
-    train_dataset = MultiModalDataset(train_tsv, image_folder, num_classes)
-    val_dataset = MultiModalDataset(val_tsv, image_folder, num_classes)
+    train_dataset = MultiModalDataset(
+                        train_tsv,
+                        image_folder, 
+                        num_classes,
+                        vit_model_name=vit_model_name,
+                        text_model_name=text_model_name,
+                        max_text_length=max_text_length
+                        )
+    val_dataset = MultiModalDataset(
+                        val_tsv, 
+                        image_folder, 
+                        num_classes,
+                        vit_model_name=vit_model_name,
+                        text_model_name=text_model_name,
+                        max_text_length=max_text_length
+                        )
 
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False)
@@ -84,13 +106,27 @@ def train(config_path):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Using device: {device}")
 
-    # Initialize models
-    vit_model = VisionTransformerModel(device=device)
-    text_model = TextTransformerModel(device=device)
+    if vit_model_name == "timm/tiny_vit_5m_224.dist_in22k":
+        vit_model = VisionTransformerModel(device=device)
+    elif vit_model_name == "openai/clip-vit-base-patch32":
+        vit_model = CLIPImageEncoder(device)
+    else:
+        print(f'unsupported VIT mode type {vit_model_name}')
+    
+    if text_model_name == "distilbert/distilbert-base-uncased":
+        text_model = TextTransformerModel(device=device)
+    elif text_model_name == "openai/clip-vit-base-patch32":
+        text_model = CLIPTextEncoder(device)
+    else:
+        print(f'unsupported text mode type {text_model_name}')
 
     fusion_method = config['fusion_method']
     logger.info(f"Creating MultiModalClassifier with fusion method {fusion_method}")
-    multi_modal_model = MultiModalClassifier(num_classes=num_classes, fusion_method=fusion_method).to(device)
+    multi_modal_model = MultiModalClassifier(
+                            image_dim=vit_model.embedding_size, 
+                            text_dim=text_model.embedding_size,
+                            num_classes=num_classes, 
+                            fusion_method=fusion_method).to(device)
 
     logger.info("Models initialized successfully.")
 
@@ -167,5 +203,8 @@ def train(config_path):
     logger.info("Training complete.")
 
 if __name__ == "__main__":
-    CONFIG_PATH = r"C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection_v2\fake_news_detection\config\model\concat_model.yaml"
-    train(CONFIG_PATH)
+    parser = argparse.ArgumentParser(description="Train Multi-Modal Fake News Detection Model")
+    parser.add_argument("--config", type=str, required=True, help="Path to the configuration YAML file")
+    args = parser.parse_args()
+
+    train(args.config)

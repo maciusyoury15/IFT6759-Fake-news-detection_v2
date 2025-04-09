@@ -1,4 +1,4 @@
-name: clip_concat_model_100k_data_2_classes
+name: clip_cross_attention_model_100k_sample_2_classes
 
 train_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\sample\100k_subset\multimodal_train_80k.tsv
 val_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\sample\100k_subset\multimodal_eval_20k.tsv
@@ -6,13 +6,14 @@ image_folder: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection
 
 num_classes: 2
 
-vit_model_name: "openai/clip-vit-base-patch32"
-text_model_name: "openai/clip-vit-base-patch32"
-fusion_method: concat
+vit_model_name: openai/clip-vit-base-patch32
+text_model_name: openai/clip-vit-base-patch32
+fusion_method: cross_attention
+
 
 batch_size: 64
 num_epochs: 25
 learning_rate: 0.0001
 patience: 3  # Early stopping patience
 
-save_dir: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection_v2\fake_news_detection\logs\cip_concat_model_100k_sample_2_classes
+save_dir: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection_v2\fake_news_detection\logs\clip_cross_attention_model_100k_sample_2_classes
