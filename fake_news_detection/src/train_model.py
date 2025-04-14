@@ -11,6 +11,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 from fake_news_detection.src.dataset_rtf import MultiModalDataset
 from fake_news_detection.models.multi_modal import MultiModalClassifier
+from fake_news_detection.models.single_modal import ImageOnlyClassifier, TextOnlyClassifier
 from fake_news_detection.models.ViT import VisionTransformerModel
 from fake_news_detection.models.text_transformer import TextTransformerModel
 from fake_news_detection.models.clip_model import CLIPImageEncoder, CLIPTextEncoder
@@ -121,12 +122,23 @@ def train(config_path):
         print(f'unsupported text mode type {text_model_name}')
 
     fusion_method = config['fusion_method']
-    logger.info(f"Creating MultiModalClassifier with fusion method {fusion_method}")
-    multi_modal_model = MultiModalClassifier(
-                            image_dim=vit_model.embedding_size, 
-                            text_dim=text_model.embedding_size,
-                            num_classes=num_classes, 
-                            fusion_method=fusion_method).to(device)
+    if fusion_method == 'image only':
+        logger.info(f"Creating ImageOnlyClassifier")
+        multi_modal_model = ImageOnlyClassifier(
+                                image_dim=vit_model.embedding_size,
+                                num_classes=num_classes).to(device)
+    elif fusion_method == 'text only':
+        logger.info(f"Creating TextOnlyClassifier")
+        multi_modal_model = TextOnlyClassifier(
+                                text_dim=text_model.embedding_size,
+                                num_classes=num_classes).to(device)
+    else:
+        logger.info(f"Creating MultiModalClassifier with fusion method {fusion_method}")
+        multi_modal_model = MultiModalClassifier(
+                                image_dim=vit_model.embedding_size, 
+                                text_dim=text_model.embedding_size,
+                                num_classes=num_classes, 
+                                fusion_method=fusion_method).to(device)
 
     logger.info("Models initialized successfully.")
 
