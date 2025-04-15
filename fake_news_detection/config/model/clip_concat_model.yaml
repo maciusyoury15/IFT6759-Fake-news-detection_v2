@@ -10,7 +10,6 @@ vit_model_name: openai/clip-vit-base-patch32
 text_model_name: openai/clip-vit-base-patch32
 fusion_method: concat
 
-
 batch_size: 64
 num_epochs: 25
 learning_rate: 0.0001
