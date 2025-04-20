@@ -51,6 +51,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+*.pth
 
 # Sphinx documentation
 docs/_build/
@@ -95,5 +96,11 @@ outputs
 # Data
 data/*/*
 
+# Logs
+logs/*
+
 # Notebooks
 notebooks/*
+
+# Images
+*.png

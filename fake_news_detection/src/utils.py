@@ -1,16 +1,55 @@
+import os
+import logging
+import yaml  
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import missingno as msno
 import gensim
-import nltk
-import re
+
 from nltk.corpus import stopwords
 from typing import List
 from wordcloud import WordCloud
 
-nltk.download('stopwords')
+
+def setup_logging(save_dir, log_name):
+    """Setup logging to save logs in the same directory as the model."""
+    log_file = os.path.join(save_dir, log_name)
+    os.makedirs(save_dir, exist_ok=True)  # Ensure save directory exists
+
+    logging.basicConfig(
+        filename=log_file,
+        filemode="w",
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    console_handler.setFormatter(formatter)
+    logging.getLogger().addHandler(console_handler)
+
+    return logging.getLogger()
+
+
+def load_config(config_path):
+    """Loads YAML configuration file."""
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
+
+def save_conf_matrix(conf_matrix, save_dir):
+    """Save formatted copy of confusion matrix """
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues")
+    plt.xlabel("Predicted")
+    plt.ylabel("True")
+    plt.title("Confusion Matrix")
+    conf_matrix_path = os.path.join(save_dir, "confusion_matrix.png")
+    plt.savefig(conf_matrix_path)
+
 
 def missing_values_analysis(df: pd.DataFrame) -> None:
     """

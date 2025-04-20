@@ -1,0 +1,18 @@
+name: concat_model_100k_data_2_classes_v2
+
+train_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\sample\100k_subset\multimodal_train_80k.tsv
+val_data: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\sample\100k_subset\multimodal_eval_20k.tsv
+image_folder: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection\data\raw\sample\100k_subset\Images_100k
+
+num_classes: 2
+
+vit_model_name: timm/tiny_vit_5m_224.dist_in22k
+text_model_name: distilbert/distilbert-base-uncased
+fusion_method: concat
+
+batch_size: 64
+num_epochs: 25
+learning_rate: 0.0001
+patience: 3  # Early stopping patience
+
+save_dir: C:\Users\Claire\Documents\UdeM\IFT6759\IFT6759-Fake-news-detection_v2\fake_news_detection\logs\concat_model_100k_sample_2_classes_v2
