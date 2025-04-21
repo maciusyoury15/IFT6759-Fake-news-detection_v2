@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import os
 
+import pandas as pd
 from torch.utils.data import DataLoader
 
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -18,7 +19,7 @@ def evaluate(model, vit_model, text_model, val_loader, criterion, device):
     model.eval()
     val_loss, batch_count = 0.0, 0
 
-    y_true, y_pred = [], []
+    y_true, y_pred, logits_list = [], [], []
 
     with torch.no_grad():
         for images, text_inputs, labels in val_loader:
@@ -40,6 +41,9 @@ def evaluate(model, vit_model, text_model, val_loader, criterion, device):
 
             y_true.extend(labels.cpu().numpy())
             y_pred.extend(predictions)
+            logits_list.append(outputs.cpu())
+    
+    logits_tensor = torch.cat(logits_list, dim=0)
 
     accuracy = accuracy_score(y_true, y_pred)
     class_report = classification_report(y_true, y_pred, digits=4)
@@ -47,7 +51,7 @@ def evaluate(model, vit_model, text_model, val_loader, criterion, device):
     
     avg_val_loss = val_loss / batch_count if batch_count > 0 else float('inf')
     
-    return avg_val_loss, accuracy, class_report, conf_matrix
+    return avg_val_loss, accuracy, class_report, conf_matrix, logits_tensor, y_pred
 
 def evaluate_model_from_checkpoint(config_path):
     config = load_config(config_path)
@@ -64,11 +68,8 @@ def evaluate_model_from_checkpoint(config_path):
     num_classes = config["num_classes"]
     vit_model_name = config["vit_model_name"]
     text_model_name = config["text_model_name"]
-    if text_model_name == "openai/clip-vit-base-patch32":
-        max_text_length = 77
-    else:
-        max_text_length = 128
-    
+    max_text_length = 77 if text_model_name == "openai/clip-vit-base-patch32" else 128
+
     val_dataset = MultiModalDataset(
                         val_tsv, 
                         image_folder, 
@@ -112,13 +113,24 @@ def evaluate_model_from_checkpoint(config_path):
 
     criterion = nn.CrossEntropyLoss()
     
-    _, accuracy, class_report, conf_matrix = evaluate(multi_modal_model, vit_model, text_model, val_loader, criterion, device)
+    _, accuracy, class_report, conf_matrix, logits_tensor, preds = evaluate(multi_modal_model, vit_model, text_model, val_loader, criterion, device)
 
     logger.info(f"Accuracy: {accuracy:.4f}")
     logger.info("Classification Report:\n" + class_report)
 
     save_conf_matrix(conf_matrix, save_dir)
     logger.info(f"Confusion matrix saved at {save_dir}")
+
+    df = pd.read_csv(val_tsv, sep='\t')
+    
+    for i in range(logits_tensor.size(1)):
+        df[f'title_image_logit_class_{i}'] = logits_tensor[:, i].numpy()
+    df['title_image_predicted_label'] = preds
+
+    output_path = os.path.join(save_dir, "title_image_output_with_logits.tsv")
+    df.to_csv(output_path, sep='\t', index=False)
+    logger.info(f"Updated TSV with logits saved at {output_path}")
+
     logger.info("Evaluation complete.")
     
 
